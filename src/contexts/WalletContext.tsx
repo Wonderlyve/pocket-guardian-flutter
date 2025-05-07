@@ -1,20 +1,26 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Wallet, Expense, ExchangeRate } from '@/types/wallet';
+import { Wallet, Expense, ExchangeRate, Entry, Transaction } from '@/types/wallet';
 import { useAuth } from './AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
 interface WalletContextType {
   wallets: Wallet[];
   expenses: Expense[];
+  entries: Entry[];
+  transactions: Transaction[];
   exchangeRate: ExchangeRate;
   createWallet: (name: string, balance: number, agentId: string) => void;
   updateWalletBalance: (walletId: string, amount: number) => void;
   addExpense: (expense: Omit<Expense, 'id' | 'convertedAmount'>) => void;
+  addEntry: (entry: Omit<Entry, 'id' | 'convertedAmount'>) => void;
   getWalletById: (id: string) => Wallet | undefined;
   getWalletsByAgent: (agentId: string) => Wallet[];
   getExpensesByWallet: (walletId: string) => Expense[];
+  getEntriesByWallet: (walletId: string) => Entry[];
+  getTransactionsByWallet: (walletId: string) => Transaction[];
   getTotalExpensesByWallet: (walletId: string) => number;
+  getTotalEntriesByWallet: (walletId: string) => number;
   getRemainingBalance: (walletId: string) => number;
   updateExchangeRate: (rate: number) => void;
 }
@@ -73,10 +79,15 @@ const INITIAL_EXPENSES: Expense[] = [
   },
 ];
 
+const INITIAL_ENTRIES: Entry[] = [];
+const INITIAL_TRANSACTIONS: Transaction[] = [];
+
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const { currentUser } = useAuth();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate>({
     usdToCdf: 2500, // 1 USD = 2500 CDF par défaut
     lastUpdated: new Date(),
@@ -86,6 +97,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     // Chargement des données initiales
     const storedWallets = localStorage.getItem('wallets');
     const storedExpenses = localStorage.getItem('expenses');
+    const storedEntries = localStorage.getItem('entries');
+    const storedTransactions = localStorage.getItem('transactions');
     const storedExchangeRate = localStorage.getItem('exchangeRate');
 
     if (storedWallets) {
@@ -100,6 +113,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setExpenses(INITIAL_EXPENSES);
       localStorage.setItem('expenses', JSON.stringify(INITIAL_EXPENSES));
+    }
+
+    if (storedEntries) {
+      setEntries(JSON.parse(storedEntries));
+    } else {
+      setEntries(INITIAL_ENTRIES);
+      localStorage.setItem('entries', JSON.stringify(INITIAL_ENTRIES));
+    }
+
+    if (storedTransactions) {
+      setTransactions(JSON.parse(storedTransactions));
+    } else {
+      setTransactions(INITIAL_TRANSACTIONS);
+      localStorage.setItem('transactions', JSON.stringify(INITIAL_TRANSACTIONS));
     }
 
     if (storedExchangeRate) {
@@ -121,6 +148,18 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('expenses', JSON.stringify(expenses));
     }
   }, [expenses]);
+
+  useEffect(() => {
+    if (entries.length > 0) {
+      localStorage.setItem('entries', JSON.stringify(entries));
+    }
+  }, [entries]);
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+  }, [transactions]);
 
   useEffect(() => {
     localStorage.setItem('exchangeRate', JSON.stringify(exchangeRate));
@@ -145,6 +184,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setWallets((prev) => [...prev, newWallet]);
+    
+    // Ajouter une transaction pour la création du portefeuille
+    const newTransaction: Transaction = {
+      id: Date.now().toString(),
+      walletId: newWallet.id,
+      type: 'initial',
+      amount: balance,
+      description: `Création du portefeuille ${name}`,
+      currency: 'USD',
+      date: new Date(),
+    };
+    
+    setTransactions(prev => [...prev, newTransaction]);
+    
     toast({
       title: "Portefeuille créé",
       description: `Le portefeuille ${name} a été créé avec succès`,
@@ -161,11 +214,29 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    const wallet = getWalletById(walletId);
+    if (!wallet) return;
+    
+    const oldBalance = wallet.balance;
+
     setWallets((prev) =>
       prev.map((wallet) =>
         wallet.id === walletId ? { ...wallet, balance: amount } : wallet
       )
     );
+
+    // Ajouter une transaction pour la modification du solde
+    const newTransaction: Transaction = {
+      id: Date.now().toString(),
+      walletId,
+      type: amount > oldBalance ? 'topup' : 'adjustment',
+      amount: amount - oldBalance,
+      description: `Modification du solde par l'administrateur`,
+      currency: 'USD',
+      date: new Date(),
+    };
+    
+    setTransactions(prev => [...prev, newTransaction]);
 
     toast({
       title: "Portefeuille mis à jour",
@@ -186,7 +257,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const totalExpenses = getTotalExpensesByWallet(expense.walletId);
-    const remainingBalance = wallet.balance - totalExpenses;
+    const totalEntries = getTotalEntriesByWallet(expense.walletId);
+    const remainingBalance = wallet.balance + totalEntries - totalExpenses;
 
     let amountInUsd = expense.amount;
     if (expense.currency === 'CDF') {
@@ -209,9 +281,69 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setExpenses((prev) => [...prev, newExpense]);
+    
+    // Ajouter une transaction pour la dépense
+    const newTransaction: Transaction = {
+      id: Date.now().toString(),
+      walletId: expense.walletId,
+      type: 'expense',
+      amount: -amountInUsd, // Montant négatif pour une dépense
+      description: expense.description,
+      currency: expense.currency,
+      date: expense.date,
+      originalAmount: expense.amount,
+    };
+    
+    setTransactions(prev => [...prev, newTransaction]);
+    
     toast({
       title: "Dépense ajoutée",
       description: `Dépense de ${expense.amount} ${expense.currency} ajoutée`,
+    });
+  };
+  
+  const addEntry = (entry: Omit<Entry, 'id' | 'convertedAmount'>) => {
+    const wallet = getWalletById(entry.walletId);
+
+    if (!wallet) {
+      toast({
+        title: "Erreur",
+        description: "Portefeuille non trouvé",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    let amountInUsd = entry.amount;
+    if (entry.currency === 'CDF') {
+      amountInUsd = entry.amount / exchangeRate.usdToCdf;
+    }
+
+    const newEntry: Entry = {
+      ...entry,
+      id: Date.now().toString(),
+      convertedAmount: amountInUsd,
+    };
+
+    setEntries((prev) => [...prev, newEntry]);
+    
+    // Ajouter une transaction pour l'entrée
+    const newTransaction: Transaction = {
+      id: Date.now().toString(),
+      walletId: entry.walletId,
+      type: 'entry',
+      amount: amountInUsd, // Montant positif pour une entrée
+      description: entry.description,
+      currency: entry.currency,
+      date: entry.date,
+      originalAmount: entry.amount,
+    };
+    
+    setTransactions(prev => [...prev, newTransaction]);
+
+    toast({
+      title: "Entrée ajoutée",
+      description: `Entrée de ${entry.amount} ${entry.currency} ajoutée`,
     });
   };
 
@@ -226,11 +358,27 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const getExpensesByWallet = (walletId: string) => {
     return expenses.filter((expense) => expense.walletId === walletId);
   };
+  
+  const getEntriesByWallet = (walletId: string) => {
+    return entries.filter((entry) => entry.walletId === walletId);
+  };
+  
+  const getTransactionsByWallet = (walletId: string) => {
+    return transactions.filter((transaction) => transaction.walletId === walletId);
+  };
 
   const getTotalExpensesByWallet = (walletId: string) => {
     return getExpensesByWallet(walletId).reduce((total, expense) => {
       const amountInUsd = expense.convertedAmount || 
         (expense.currency === 'USD' ? expense.amount : expense.amount / exchangeRate.usdToCdf);
+      return total + amountInUsd;
+    }, 0);
+  };
+  
+  const getTotalEntriesByWallet = (walletId: string) => {
+    return getEntriesByWallet(walletId).reduce((total, entry) => {
+      const amountInUsd = entry.convertedAmount || 
+        (entry.currency === 'USD' ? entry.amount : entry.amount / exchangeRate.usdToCdf);
       return total + amountInUsd;
     }, 0);
   };
@@ -240,7 +388,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     if (!wallet) return 0;
     
     const totalExpenses = getTotalExpensesByWallet(walletId);
-    return wallet.balance - totalExpenses;
+    const totalEntries = getTotalEntriesByWallet(walletId);
+    return wallet.balance + totalEntries - totalExpenses;
   };
 
   const updateExchangeRate = (rate: number) => {
@@ -269,14 +418,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       value={{
         wallets,
         expenses,
+        entries,
+        transactions,
         exchangeRate,
         createWallet,
         updateWalletBalance,
         addExpense,
+        addEntry,
         getWalletById,
         getWalletsByAgent,
         getExpensesByWallet,
+        getEntriesByWallet,
+        getTransactionsByWallet,
         getTotalExpensesByWallet,
+        getTotalEntriesByWallet,
         getRemainingBalance,
         updateExchangeRate,
       }}

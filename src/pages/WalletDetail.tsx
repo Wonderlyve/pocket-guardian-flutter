@@ -14,6 +14,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Home, Wallet, Settings, Bell, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import BankCard from '@/components/BankCard';
 import { useState } from 'react';
+import EntryForm from '@/components/EntryForm';
+import EntriesList from '@/components/EntriesList';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Définition temporaire des entrées pour éviter les erreurs
 interface Entry {
@@ -21,22 +24,18 @@ interface Entry {
   walletId: string;
   amount: number;
   description: string;
+  currency: 'USD' | 'CDF';
   date: Date;
 }
 
 const WalletDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getWalletById, updateWalletBalance, getTotalExpensesByWallet, getRemainingBalance } = useWallet();
+  const { getWalletById, updateWalletBalance, getTotalExpensesByWallet, getRemainingBalance, getTotalEntriesByWallet, addEntry } = useWallet();
   const { isAdmin, currentUser } = useAuth();
   
   const [newBalance, setNewBalance] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  
-  // Pour la gestion des entrées
-  const [newEntry, setNewEntry] = useState<string>('');
-  const [entryDescription, setEntryDescription] = useState<string>('');
-  const [entries, setEntries] = useState<Entry[]>([]);
   const [activeTab, setActiveTab] = useState<string>("expenses");
   
   if (!id) {
@@ -58,6 +57,7 @@ const WalletDetail = () => {
   }
   
   const totalExpenses = getTotalExpensesByWallet(id);
+  const totalEntries = getTotalEntriesByWallet(id);
   const remainingBalance = getRemainingBalance(id);
   
   const handleUpdateBalance = (e: React.FormEvent) => {
@@ -72,35 +72,12 @@ const WalletDetail = () => {
     setNewBalance('');
     setIsUpdating(false);
   };
-  
-  const handleAddEntry = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const entryAmount = parseFloat(newEntry);
-    if (!isNaN(entryAmount) && entryAmount > 0 && entryDescription.trim()) {
-      const newEntryItem: Entry = {
-        id: Date.now().toString(),
-        walletId: id,
-        amount: entryAmount,
-        description: entryDescription,
-        date: new Date()
-      };
-      
-      setEntries([...entries, newEntryItem]);
-      
-      // Dans un cas réel, il faudrait mettre à jour le solde du portefeuille
-      updateWalletBalance(id, wallet.balance + entryAmount);
-      
-      setNewEntry('');
-      setEntryDescription('');
-    }
-  };
 
   return (
     <Layout>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Détails du portefeuille</h1>
+          <h1 className="text-lg font-bold">Détails du portefeuille</h1>
         </div>
         <Button 
           variant="outline" 
@@ -115,10 +92,10 @@ const WalletDetail = () => {
         <BankCard wallet={wallet} />
       </div>
 
-      <div className="grid gap-4 mb-4 md:grid-cols-2">
+      <div className="grid gap-4 mb-4 md:grid-cols-3">
         <Card className="bg-wallet-warning/10 border-wallet-warning/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-wallet-warning">Dépenses totales</CardTitle>
+            <CardTitle className="text-base text-wallet-warning">Dépenses</CardTitle>
           </CardHeader>
           <CardContent>
             <CurrencyDisplay amount={totalExpenses} className="text-xl font-bold text-wallet-warning" />
@@ -127,10 +104,19 @@ const WalletDetail = () => {
         
         <Card className="bg-wallet-success/10 border-wallet-success/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-wallet-success">Solde restant</CardTitle>
+            <CardTitle className="text-base text-wallet-success">Encaissements</CardTitle>
           </CardHeader>
           <CardContent>
-            <CurrencyDisplay amount={remainingBalance} className="text-xl font-bold text-wallet-success" />
+            <CurrencyDisplay amount={totalEntries} className="text-xl font-bold text-wallet-success" />
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-wallet-info/10 border-wallet-info/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base text-wallet-info">Solde restant</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CurrencyDisplay amount={remainingBalance} className="text-xl font-bold text-wallet-info" />
           </CardContent>
         </Card>
       </div>
@@ -194,70 +180,10 @@ const WalletDetail = () => {
         <TabsContent value="entries" className="mt-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Nouvelle entrée de caisse</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleAddEntry} className="space-y-3">
-                    <div className="space-y-1">
-                      <Label htmlFor="entryAmount">Montant (USD)</Label>
-                      <Input
-                        id="entryAmount"
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        value={newEntry}
-                        onChange={(e) => setNewEntry(e.target.value)}
-                        placeholder="0.00"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <Label htmlFor="entryDescription">Description</Label>
-                      <Input
-                        id="entryDescription"
-                        type="text"
-                        value={entryDescription}
-                        onChange={(e) => setEntryDescription(e.target.value)}
-                        placeholder="Description de l'entrée"
-                        required
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full bg-wallet-success hover:bg-wallet-success/80">
-                      Ajouter l'entrée
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+              <EntryForm walletId={id} />
             </div>
             <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Historique des entrées</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {entries.length > 0 ? (
-                    <ul className="space-y-2">
-                      {entries.map(entry => (
-                        <li key={entry.id} className="border-b pb-2">
-                          <div className="flex justify-between">
-                            <span className="font-medium">{entry.description}</span>
-                            <CurrencyDisplay amount={entry.amount} className="text-wallet-success" />
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {entry.date.toLocaleDateString()} à {entry.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-muted-foreground text-center py-4">Aucune entrée enregistrée</p>
-                  )}
-                </CardContent>
-              </Card>
+              <EntriesList wallet={wallet} />
             </div>
           </div>
         </TabsContent>
@@ -269,7 +195,7 @@ const WalletDetail = () => {
           <Button 
             onClick={() => navigate('/')} 
             variant="ghost" 
-            className="flex flex-col items-center space-y-1"
+            className="flex flex-col items-center space-y-0.5 w-16"
             size="sm"
           >
             <Home className="h-4 w-4 text-wallet-primary" />
@@ -279,18 +205,28 @@ const WalletDetail = () => {
           <Button 
             onClick={() => navigate('/wallets')} 
             variant="ghost" 
-            className="flex flex-col items-center space-y-1"
+            className="flex flex-col items-center space-y-0.5 w-16"
             size="sm"
           >
             <Wallet className="h-4 w-4 text-wallet-primary" />
             <span className="text-xs">Portefeuilles</span>
           </Button>
           
+          <Button 
+            onClick={() => navigate(`/operations/${id}`)} 
+            variant="ghost" 
+            className="flex flex-col items-center space-y-0.5 w-16"
+            size="sm"
+          >
+            <ArrowUpCircle className="h-4 w-4 text-wallet-primary" />
+            <span className="text-xs">Opérations</span>
+          </Button>
+          
           {isAdmin && (
             <Button 
               onClick={() => navigate('/settings')} 
               variant="ghost" 
-              className="flex flex-col items-center space-y-1"
+              className="flex flex-col items-center space-y-0.5 w-16"
               size="sm"
             >
               <Settings className="h-4 w-4 text-wallet-primary" />
@@ -299,8 +235,9 @@ const WalletDetail = () => {
           )}
           
           <Button 
+            onClick={() => navigate('/notifications')}
             variant="ghost" 
-            className="flex flex-col items-center space-y-1"
+            className="flex flex-col items-center space-y-0.5 w-16"
             size="sm"
           >
             <Bell className="h-4 w-4 text-wallet-primary" />

@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard";
 import WalletsList from "./pages/WalletsList";
 import CreateWallet from "./pages/CreateWallet";
 import WalletDetail from "./pages/WalletDetail";
+import OperationsPage from "./pages/OperationsPage";
+import EncaissementsPage from "./pages/EncaissementsPage";
 import Settings from "./pages/Settings";
 import ExpensesPage from "./pages/ExpensesPage";
 import NotFound from "./pages/NotFound";
@@ -41,6 +43,8 @@ const App = () => (
               <Route path="/wallets" element={<ProtectedRoute><WalletsList /></ProtectedRoute>} />
               <Route path="/wallets/create" element={<ProtectedRoute><CreateWallet /></ProtectedRoute>} />
               <Route path="/wallets/:id" element={<ProtectedRoute><WalletDetail /></ProtectedRoute>} />
+              <Route path="/operations/:id" element={<ProtectedRoute><OperationsPage /></ProtectedRoute>} />
+              <Route path="/encaissements/:id" element={<ProtectedRoute><EncaissementsPage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
               
