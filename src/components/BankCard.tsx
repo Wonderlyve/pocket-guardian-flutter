@@ -29,7 +29,7 @@ const BankCard: React.FC<BankCardProps> = ({ wallet }) => {
         <div className="flex justify-between items-end">
           <div>
             <p className="text-xs text-white/80 mb-1">Solde disponible</p>
-            <CurrencyDisplay amount={wallet.balance} className="text-2xl font-bold" textColor="text-white" />
+            <CurrencyDisplay amount={wallet.balance} className="text-2xl font-bold" />
           </div>
           <div className="text-right">
             <p className="text-xs text-white/80 mb-1">Date de création</p>

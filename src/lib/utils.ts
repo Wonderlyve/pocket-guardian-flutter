@@ -34,3 +34,20 @@ export function hexToRgba(hex: string, alpha: number = 1): string {
   // Return the rgba value
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
+
+// Ajoute une fonction pour formater les dates
+export function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(new Date(date));
+}
+
+// Ajoute une fonction pour formater l'heure
+export function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(date));
+}
