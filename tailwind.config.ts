@@ -64,16 +64,23 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
                 wallet: {
-                    primary: '#9B87F5',
-                    secondary: '#7E69AB',
-                    accent: '#1EAEDB',
-                    background: '#F1F0FB',
+                    primary: '#7C4DFF',
+                    secondary: '#651FFF',
+                    accent: '#00BCD4',
+                    background: '#F5F5F5',
                     text: '#1A1F2C',
-                    neutral: '#8E9196',
-                    light: '#D6BCFA',
-                    success: '#10B981',
-                    warning: '#F59E0B',
-                    danger: '#EF4444',
+                    neutral: '#5E6470',
+                    light: '#D1C4E9',
+                    success: '#00C853',
+                    warning: '#FF9100',
+                    danger: '#FF3D00',
+                    card: {
+                        gradient: {
+                            from: '#7C4DFF',
+                            to: '#448AFF'
+                        }
+                    },
+                    info: '#2196F3'
                 }
 			},
 			borderRadius: {
@@ -107,12 +114,21 @@ export default {
                         opacity: '1',
                         transform: 'translateY(0)'
                     }
+                },
+                'pulse-light': {
+                    '0%, 100%': {
+                        opacity: 1
+                    },
+                    '50%': {
+                        opacity: 0.8
+                    }
                 }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-                'fade-in': 'fade-in 0.3s ease-out'
+                'fade-in': 'fade-in 0.3s ease-out',
+                'pulse-light': 'pulse-light 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			}
 		}
 	},
