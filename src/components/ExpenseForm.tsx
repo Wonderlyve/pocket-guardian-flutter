@@ -81,7 +81,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ walletId, onSuccess }) => {
             <div className="flex items-center justify-between">
               <Label htmlFor="amount">Montant</Label>
               <span className="text-sm text-muted-foreground">
-                Solde disponible: <CurrencyDisplay amount={remainingBalance} />
+                Solde débité: <CurrencyDisplay amount={remainingBalance} />
               </span>
             </div>
             <div className="flex space-x-2">

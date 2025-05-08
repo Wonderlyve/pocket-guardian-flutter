@@ -4,10 +4,10 @@ import { useWallet } from '@/contexts/WalletContext';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Transaction } from '@/types/wallet';
+import { Transaction, TransactionType } from '@/types/wallet';
 import CurrencyDisplay from '@/components/CurrencyDisplay';
 import { formatDate } from '@/lib/utils';
-import { Home, Wallet, Settings, Bell, ArrowUpCircle } from 'lucide-react';
+import { Home, Wallet, Settings, Bell, ArrowUpCircle, ArrowDownCircle, BarChart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const OperationsPage = () => {
@@ -190,6 +190,16 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Afficher le montant original en CDF ou USD sans conversion
+  const displayAmount = () => {
+    const amount = transaction.originalAmount || Math.abs(transaction.amount);
+    return (
+      <span className={`font-medium ${getTransactionColor(transaction.type)}`}>
+        {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {transaction.currency}
+      </span>
+    );
+  };
+
   return (
     <div className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-none">
       <div className="flex items-center space-x-3">
@@ -201,11 +211,7 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
           </p>
         </div>
       </div>
-      <CurrencyDisplay
-        amount={Math.abs(transaction.amount)}
-        currency={transaction.currency}
-        className={`font-medium ${getTransactionColor(transaction.type)}`}
-      />
+      {displayAmount()}
     </div>
   );
 };

@@ -1,5 +1,6 @@
+
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Wallet, Expense, ExchangeRate, Entry, Transaction } from '@/types/wallet';
+import { Wallet, Expense, ExchangeRate, Entry, Transaction, TransactionType } from '@/types/wallet';
 import { useAuth } from './AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
@@ -262,18 +263,18 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Vérifier que l'administrateur ne peut pas faire des dépenses
-    if (currentUser?.role === 'admin') {
+    // Vérifier que l'administrateur peut seulement faire des dépenses dans le portefeuille principal
+    if (currentUser?.role === 'admin' && wallet.id !== '1') {
       toast({
         title: "Accès refusé",
-        description: "Les administrateurs ne peuvent pas effectuer de dépenses dans les portefeuilles",
+        description: "Les administrateurs ne peuvent effectuer des dépenses que dans le portefeuille principal",
         variant: "destructive",
       });
       return;
     }
     
     // Vérifier que l'agent ne peut faire des dépenses que dans son propre portefeuille
-    if (currentUser?.id !== wallet.agentId) {
+    if (currentUser?.role !== 'admin' && currentUser?.id !== wallet.agentId) {
       toast({
         title: "Accès refusé",
         description: "Vous ne pouvez effectuer des dépenses que dans votre propre portefeuille",
@@ -335,6 +336,26 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       toast({
         title: "Erreur",
         description: "Portefeuille non trouvé",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Vérifier que l'administrateur peut seulement faire des entrées dans le portefeuille principal
+    if (currentUser?.role === 'admin' && wallet.id !== '1') {
+      toast({
+        title: "Accès refusé",
+        description: "Les administrateurs ne peuvent effectuer des entrées que dans le portefeuille principal",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Vérifier que l'agent ne peut faire des entrées que dans son propre portefeuille
+    if (currentUser?.role !== 'admin' && currentUser?.id !== wallet.agentId) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous ne pouvez effectuer des entrées que dans votre propre portefeuille",
         variant: "destructive",
       });
       return;
