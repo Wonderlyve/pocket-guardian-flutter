@@ -39,6 +39,13 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
     }
   }, []);
 
+  const generateEmail = (walletName: string): string => {
+    // Remove special characters and spaces, replace with nothing
+    const sanitizedName = walletName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    // Return email in format: sanitizedname@domain
+    return `${sanitizedName}@${emailDomain}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -64,14 +71,11 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
       return;
     }
     
-    // Générer l'email basé sur le nom du portefeuille et le domaine
-    const sanitizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const timestamp = new Date().getTime().toString().slice(-4);
-    const email = `${sanitizedName}${timestamp}@${emailDomain}`;
+    // Générer l'email basé sur le nom du portefeuille et le domaine configuré
+    const email = generateEmail(name);
     
     // Déterminer l'ID de l'agent
     let selectedAgentId: string;
-    let selectedAgentName: string;
     
     if (agentMode === 'new') {
       if (!newAgentName.trim()) {
@@ -84,12 +88,10 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
         return;
       }
       
-      // Générer un ID pour le nouvel agent (dans une vraie application, cela viendrait de la base de données)
+      // Générer un ID pour le nouvel agent
       selectedAgentId = `agent-${Date.now()}`;
-      selectedAgentName = newAgentName;
       
       // Dans une vraie application, vous créeriez l'agent dans la base de données ici
-      // pour l'instant, on simule juste
     } else {
       if (!agentId) {
         toast({
@@ -103,7 +105,15 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
       selectedAgentId = agentId;
     }
 
-    createWallet(name, balanceValue, selectedAgentId, email, password);
+    // Créer le portefeuille avec toutes les informations
+    createWallet(
+      name, 
+      balanceValue, 
+      selectedAgentId, 
+      email, 
+      password,
+      agentMode === 'new' ? newAgentName : undefined // Pass the agent name if creating a new agent
+    );
 
     // Réinitialiser le formulaire
     setName('');
@@ -142,7 +152,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
               />
               {name && (
                 <p className="text-xs text-muted-foreground">
-                  Email généré: {name.toLowerCase().replace(/[^a-z0-9]/g, '')}{new Date().getTime().toString().slice(-4)}@{emailDomain}
+                  Email généré: <span className="font-medium">{generateEmail(name)}</span>
                 </p>
               )}
             </div>
@@ -190,6 +200,9 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
                 placeholder="Nom de l'agent"
                 required={agentMode === 'new'}
               />
+              <p className="text-xs text-muted-foreground">
+                Un nouvel agent sera créé et pourra se connecter avec l'email généré et le mot de passe défini ci-dessous.
+              </p>
             </TabsContent>
           
             <div className="space-y-2">
@@ -203,6 +216,9 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
                 required
                 minLength={6}
               />
+              <p className="text-xs text-muted-foreground">
+                Ce mot de passe sera utilisé par l'agent pour se connecter à son compte.
+              </p>
             </div>
 
             <Button type="submit" className="w-full bg-wallet-primary hover:bg-wallet-secondary" disabled={isLoading}>

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Home, Wallet, Settings, Bell, LogOut, 
-  ArrowUpCircle, CreditCard, BarChart, Activity 
+  ArrowUpCircle, CreditCard, BarChart, Activity, 
+  Users, PlusCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -64,6 +65,9 @@ export default function Layout({ children }: LayoutProps) {
             <div className="mb-8 p-4 bg-wallet-light/30 rounded-lg">
               <p className="text-wallet-primary font-medium">{currentUser.name}</p>
               <p className="text-xs text-wallet-text/70">{isAdmin ? 'Administrateur' : 'Agent'}</p>
+              {!isAdmin && currentUser.email && (
+                <p className="text-xs text-wallet-text/70 mt-1">{currentUser.email}</p>
+              )}
             </div>
           )}
           
@@ -80,19 +84,78 @@ export default function Layout({ children }: LayoutProps) {
                 </Button>
               </li>
               
-              <li>
-                <Button 
-                  variant={isActive('/wallets') ? "secondary" : "ghost"}
-                  className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
-                  onClick={() => {navigate('/wallets'); setMenuOpen(false);}}
-                >
-                  <Wallet className="h-4 w-4 mr-3" />
-                  Portefeuilles
-                </Button>
-              </li>
-              
-              {!isAdmin && currentUser && (
+              {isAdmin ? (
+                // Menu items for Admin
                 <>
+                  <li>
+                    <Button 
+                      variant={isActive('/wallets') ? "secondary" : "ghost"}
+                      className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
+                      onClick={() => {navigate('/wallets'); setMenuOpen(false);}}
+                    >
+                      <Wallet className="h-4 w-4 mr-3" />
+                      Tous les portefeuilles
+                    </Button>
+                  </li>
+                  
+                  <li>
+                    <Button 
+                      variant={isActive('/wallets/create') ? "secondary" : "ghost"}
+                      className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
+                      onClick={() => {navigate('/wallets/create'); setMenuOpen(false);}}
+                    >
+                      <PlusCircle className="h-4 w-4 mr-3" />
+                      Créer un portefeuille
+                    </Button>
+                  </li>
+                  
+                  <li>
+                    <Button 
+                      variant={isActive('/settings') ? "secondary" : "ghost"}
+                      className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
+                      onClick={() => {navigate('/settings'); setMenuOpen(false);}}
+                    >
+                      <Settings className="h-4 w-4 mr-3" />
+                      Paramètres
+                    </Button>
+                  </li>
+                </>
+              ) : (
+                // Menu items for Agent
+                <>
+                  <li>
+                    <Button 
+                      variant={isActive('/wallets') ? "secondary" : "ghost"}
+                      className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
+                      onClick={() => {
+                        // Navigate to the agent's wallet if they have one
+                        if (currentUser) {
+                          navigate(`/wallets/${currentUser.id}`);
+                        }
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <Wallet className="h-4 w-4 mr-3" />
+                      Mon portefeuille
+                    </Button>
+                  </li>
+                  
+                  <li>
+                    <Button 
+                      variant={isActive('/operations') ? "secondary" : "ghost"}
+                      className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
+                      onClick={() => {
+                        if (currentUser) {
+                          navigate(`/operations/${currentUser.id}`);
+                        }
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <Activity className="h-4 w-4 mr-3" />
+                      Opérations
+                    </Button>
+                  </li>
+                  
                   <li>
                     <Button 
                       variant={isActive('/expenses') ? "secondary" : "ghost"}
@@ -109,9 +172,8 @@ export default function Layout({ children }: LayoutProps) {
                       variant={isActive('/encaissements') ? "secondary" : "ghost"}
                       className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
                       onClick={() => {
-                        // Si l'agent a un portefeuille, naviguer vers sa page d'encaissements
                         if (currentUser) {
-                          navigate(`/encaissements/${currentUser.id}`); 
+                          navigate(`/encaissements/${currentUser.id}`);
                         }
                         setMenuOpen(false);
                       }}
@@ -121,19 +183,6 @@ export default function Layout({ children }: LayoutProps) {
                     </Button>
                   </li>
                 </>
-              )}
-              
-              {isAdmin && (
-                <li>
-                  <Button 
-                    variant={isActive('/settings') ? "secondary" : "ghost"}
-                    className="w-full justify-start text-wallet-text hover:text-wallet-primary hover:bg-wallet-light/30"
-                    onClick={() => {navigate('/settings'); setMenuOpen(false);}}
-                  >
-                    <Settings className="h-4 w-4 mr-3" />
-                    Paramètres
-                  </Button>
-                </li>
               )}
               
               <li className="pt-8">
@@ -163,7 +212,7 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
 
-      {/* Redesigned Bottom Navigation */}
+      {/* Redesigned Bottom Navigation - Different for Admin and Agent */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-lg z-40">
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-around">
@@ -174,59 +223,73 @@ export default function Layout({ children }: LayoutProps) {
               isActive={isActive('/')}
             />
             
-            <NavItem 
-              icon={<Wallet className="h-5 w-5" />} 
-              label="Portefeuilles" 
-              onClick={() => navigate('/wallets')}
-              isActive={isActive('/wallets')}
-            />
-            
-            <NavItem 
-              icon={<Activity className="h-5 w-5" />} 
-              label="Opérations" 
-              onClick={() => {
-                // Si l'emplacement actuel est un portefeuille spécifique, naviguer vers ses opérations
-                const walletIdMatch = location.pathname.match(/\/wallets\/([^\/]+)/);
-                if (walletIdMatch) {
-                  navigate(`/operations/${walletIdMatch[1]}`);
-                } else {
-                  // Sinon, retour à la liste des portefeuilles
-                  navigate('/wallets');
-                }
-              }}
-              isActive={isActive('/operations')}
-            />
-            
-            <NavItem 
-              icon={<ArrowUpCircle className="h-5 w-5" />} 
-              label="Encaisser" 
-              onClick={() => {
-                const walletIdMatch = location.pathname.match(/\/wallets\/([^\/]+)/);
-                if (walletIdMatch) {
-                  navigate(`/encaissements/${walletIdMatch[1]}`);
-                } else if (!isAdmin && currentUser) {
-                  navigate(`/encaissements/${currentUser.id}`);
-                } else {
-                  navigate('/wallets');
-                }
-              }}
-              isActive={isActive('/encaissements')}
-            />
-            
             {isAdmin ? (
-              <NavItem 
-                icon={<Settings className="h-5 w-5" />} 
-                label="Réglages" 
-                onClick={() => navigate('/settings')}
-                isActive={isActive('/settings')}
-              />
+              // Bottom navigation for Admin
+              <>
+                <NavItem 
+                  icon={<Wallet className="h-5 w-5" />} 
+                  label="Portefeuilles" 
+                  onClick={() => navigate('/wallets')}
+                  isActive={isActive('/wallets')}
+                />
+                
+                <NavItem 
+                  icon={<PlusCircle className="h-5 w-5" />} 
+                  label="Créer" 
+                  onClick={() => navigate('/wallets/create')}
+                  isActive={isActive('/wallets/create')}
+                />
+                
+                <NavItem 
+                  icon={<Settings className="h-5 w-5" />} 
+                  label="Réglages" 
+                  onClick={() => navigate('/settings')}
+                  isActive={isActive('/settings')}
+                />
+              </>
             ) : (
-              <NavItem 
-                icon={<CreditCard className="h-5 w-5" />} 
-                label="Dépenser" 
-                onClick={() => navigate('/expenses')}
-                isActive={isActive('/expenses')}
-              />
+              // Bottom navigation for Agent
+              <>
+                <NavItem 
+                  icon={<Wallet className="h-5 w-5" />} 
+                  label="Portefeuille" 
+                  onClick={() => {
+                    if (currentUser) {
+                      navigate(`/wallets/${currentUser.id}`);
+                    }
+                  }}
+                  isActive={isActive('/wallets/')}
+                />
+                
+                <NavItem 
+                  icon={<Activity className="h-5 w-5" />} 
+                  label="Opérations" 
+                  onClick={() => {
+                    if (currentUser) {
+                      navigate(`/operations/${currentUser.id}`);
+                    }
+                  }}
+                  isActive={isActive('/operations/')}
+                />
+                
+                <NavItem 
+                  icon={<ArrowUpCircle className="h-5 w-5" />} 
+                  label="Encaisser" 
+                  onClick={() => {
+                    if (currentUser) {
+                      navigate(`/encaissements/${currentUser.id}`);
+                    }
+                  }}
+                  isActive={isActive('/encaissements/')}
+                />
+                
+                <NavItem 
+                  icon={<CreditCard className="h-5 w-5" />} 
+                  label="Dépenser" 
+                  onClick={() => navigate('/expenses')}
+                  isActive={isActive('/expenses')}
+                />
+              </>
             )}
           </div>
         </div>

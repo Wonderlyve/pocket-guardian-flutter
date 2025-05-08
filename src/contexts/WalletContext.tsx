@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Wallet, Expense, ExchangeRate, Entry, Transaction, TransactionType } from '@/types/wallet';
 import { useAuth } from './AuthContext';
@@ -10,7 +9,14 @@ interface WalletContextType {
   entries: Entry[];
   transactions: Transaction[];
   exchangeRate: ExchangeRate;
-  createWallet: (name: string, balance: number, agentId: string, email?: string, password?: string) => void;
+  createWallet: (
+    name: string, 
+    balance: number, 
+    agentId: string, 
+    email?: string, 
+    password?: string,
+    agentName?: string
+  ) => void;
   updateWalletBalance: (walletId: string, amount: number) => void;
   addExpense: (expense: Omit<Expense, 'id' | 'convertedAmount'>) => void;
   addEntry: (entry: Omit<Entry, 'id' | 'convertedAmount'>) => void;
@@ -170,7 +176,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('exchangeRate', JSON.stringify(exchangeRate));
   }, [exchangeRate]);
 
-  const createWallet = (name: string, balance: number, agentId: string, email?: string, password?: string) => {
+  const createWallet = (
+    name: string, 
+    balance: number, 
+    agentId: string, 
+    email?: string, 
+    password?: string,
+    agentName?: string
+  ) => {
     if (currentUser?.role !== 'admin') {
       toast({
         title: "Accès refusé",
@@ -191,6 +204,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setWallets((prev) => [...prev, newWallet]);
+    
+    // If creating a new agent, notify the AuthContext to add the agent
+    // In a real application, this would be handled by the backend
+    if (agentName && email) {
+      // Signal to the auth provider that a new agent was created
+      // For now, we'll just show a toast notification
+      toast({
+        title: "Nouvel agent créé",
+        description: `Agent "${agentName}" créé avec l'email ${email}`,
+      });
+      
+      // In a real app, you would add the agent to the database here
+      // and then update MOCK_USERS in AuthContext
+    }
     
     // Ajouter une transaction pour la création du portefeuille
     const newTransaction: Transaction = {

@@ -40,12 +40,16 @@ const Settings = () => {
       return;
     }
     
+    // Ensure the domain doesn't include @
+    const cleanDomain = emailDomain.replace('@', '');
+    setEmailDomain(cleanDomain);
+    
     // Sauvegarder le domaine dans localStorage
-    localStorage.setItem('emailDomain', emailDomain);
+    localStorage.setItem('emailDomain', cleanDomain);
     
     toast({
       title: "Domaine mis à jour",
-      description: `Le domaine d'email a été mis à jour: ${emailDomain}`,
+      description: `Le domaine d'email a été mis à jour: ${cleanDomain}`,
     });
   };
 
@@ -72,11 +76,14 @@ const Settings = () => {
                   type="text"
                   value={emailDomain}
                   onChange={(e) => setEmailDomain(e.target.value)}
-                  placeholder="exemple.com"
+                  placeholder="wallet.com"
                   required
                 />
                 <p className="text-xs text-muted-foreground">
                   Ce domaine sera utilisé pour générer les adresses email des agents lors de la création de portefeuilles.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Example: <span className="font-medium">nomportefeuille@{emailDomain}</span>
                 </p>
               </div>
               <Button type="submit" className="w-full bg-wallet-primary hover:bg-wallet-secondary">

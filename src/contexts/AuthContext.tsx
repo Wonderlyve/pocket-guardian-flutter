@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/types/wallet';
+import { toast } from '@/components/ui/use-toast';
 
 // Simulation de l'authentification (à remplacer par une vraie API)
 const MOCK_USERS: User[] = [
@@ -9,18 +10,21 @@ const MOCK_USERS: User[] = [
     name: 'Admin User',
     email: 'admin@example.com',
     role: 'admin',
+    password: 'password'
   },
   {
     id: '2',
     name: 'Agent One',
     email: 'agent1@example.com',
     role: 'agent',
+    password: 'password'
   },
   {
     id: '3',
     name: 'Agent Two',
     email: 'agent2@example.com',
     role: 'agent',
+    password: 'password'
   },
 ];
 
@@ -48,19 +52,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simuler la vérification (à remplacer par API)
-    // Dans cette version de démo, le mot de passe est simplement 'password'
-    if (password !== 'password') {
-      return false;
-    }
-
+    // First check regular admin/agent users
     const user = MOCK_USERS.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (user) {
+    
+    if (user && (user.password === password || password === 'password')) {
       setCurrentUser(user);
       setIsAuthenticated(true);
       localStorage.setItem('currentUser', JSON.stringify(user));
       return true;
     }
+    
+    // If not found, check in localStorage for wallet agents
+    const walletsString = localStorage.getItem('wallets');
+    if (walletsString) {
+      try {
+        const wallets = JSON.parse(walletsString);
+        const walletForEmail = wallets.find(
+          (w: any) => w.email && w.email.toLowerCase() === email.toLowerCase()
+        );
+        
+        if (walletForEmail && walletForEmail.password === password) {
+          // Create a user based on the wallet
+          const walletUser: User = {
+            id: walletForEmail.agentId,
+            name: `Agent (${walletForEmail.name})`,
+            email: walletForEmail.email,
+            role: 'agent',
+            password: walletForEmail.password
+          };
+          
+          setCurrentUser(walletUser);
+          setIsAuthenticated(true);
+          localStorage.setItem('currentUser', JSON.stringify(walletUser));
+          
+          toast({
+            title: "Connecté",
+            description: `Bienvenue ${walletUser.name}!`,
+          });
+          
+          return true;
+        }
+      } catch (error) {
+        console.error('Error parsing wallets:', error);
+      }
+    }
+    
     return false;
   };
 

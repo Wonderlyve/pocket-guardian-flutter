@@ -5,6 +5,7 @@ import WalletCard from '@/components/WalletCard';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { PlusCircle, Users } from 'lucide-react';
 
 const WalletsList = () => {
   const { wallets } = useWallet();
@@ -18,14 +19,17 @@ const WalletsList = () => {
 
   return (
     <Layout>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold">Gestion des portefeuilles</h1>
-        <Button 
-          onClick={() => navigate('/wallets/create')}
-          className="bg-wallet-primary hover:bg-wallet-secondary"
-        >
-          Créer un portefeuille
-        </Button>
+        <div className="flex items-center gap-4 mt-4">
+          <Button 
+            onClick={() => navigate('/wallets/create')}
+            className="bg-wallet-primary hover:bg-wallet-secondary flex items-center gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Créer un portefeuille
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
