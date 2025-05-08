@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useWallet } from '@/contexts/WalletContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +16,7 @@ import { useState } from 'react';
 import EntryForm from '@/components/EntryForm';
 import EntriesList from '@/components/EntriesList';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ChangePasswordForm from '@/components/ChangePasswordForm';
 
 // Définition temporaire des entrées pour éviter les erreurs
 interface Entry {
@@ -153,6 +153,13 @@ const WalletDetail = () => {
               </form>
             </CardContent>
           </Card>
+        </div>
+      )}
+      
+      {/* Add this section for agent password change */}
+      {currentUser && wallet && currentUser.id === wallet.agentId && (
+        <div className="mb-8">
+          <ChangePasswordForm walletId={id} />
         </div>
       )}
       

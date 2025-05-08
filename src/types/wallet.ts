@@ -5,6 +5,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  password?: string; // Add password field for changing later
   role: UserRole;
 }
 
@@ -14,6 +15,8 @@ export interface Wallet {
   balance: number;
   agentId: string;
   createdAt: Date;
+  email?: string; // Added email for agent login
+  password?: string; // Added password for agent login
 }
 
 export interface Expense {

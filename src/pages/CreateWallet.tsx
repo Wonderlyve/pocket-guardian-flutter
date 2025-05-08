@@ -18,7 +18,7 @@ const CreateWallet = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Créer un portefeuille</h1>
+        <h1 className="text-xl font-bold">Créer un portefeuille</h1>
         <p className="text-muted-foreground">
           Créez un nouveau portefeuille et assignez-le à un agent
         </p>

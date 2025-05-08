@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Wallet, Expense, ExchangeRate, Entry, Transaction } from '@/types/wallet';
 import { useAuth } from './AuthContext';
@@ -10,7 +9,7 @@ interface WalletContextType {
   entries: Entry[];
   transactions: Transaction[];
   exchangeRate: ExchangeRate;
-  createWallet: (name: string, balance: number, agentId: string) => void;
+  createWallet: (name: string, balance: number, agentId: string, email?: string, password?: string) => void;
   updateWalletBalance: (walletId: string, amount: number) => void;
   addExpense: (expense: Omit<Expense, 'id' | 'convertedAmount'>) => void;
   addEntry: (entry: Omit<Entry, 'id' | 'convertedAmount'>) => void;
@@ -23,6 +22,7 @@ interface WalletContextType {
   getTotalEntriesByWallet: (walletId: string) => number;
   getRemainingBalance: (walletId: string) => number;
   updateExchangeRate: (rate: number) => void;
+  updateWalletPassword: (walletId: string, newPassword: string) => boolean;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -42,6 +42,8 @@ const INITIAL_WALLETS: Wallet[] = [
     balance: 2000,
     agentId: '2',
     createdAt: new Date(),
+    email: 'agent1@example.com',
+    password: 'password',
   },
   {
     id: '3',
@@ -49,6 +51,8 @@ const INITIAL_WALLETS: Wallet[] = [
     balance: 1500,
     agentId: '3',
     createdAt: new Date(),
+    email: 'agent2@example.com',
+    password: 'password',
   },
 ];
 
@@ -165,7 +169,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('exchangeRate', JSON.stringify(exchangeRate));
   }, [exchangeRate]);
 
-  const createWallet = (name: string, balance: number, agentId: string) => {
+  const createWallet = (name: string, balance: number, agentId: string, email?: string, password?: string) => {
     if (currentUser?.role !== 'admin') {
       toast({
         title: "Accès refusé",
@@ -181,6 +185,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       balance,
       agentId,
       createdAt: new Date(),
+      email,
+      password,
     };
 
     setWallets((prev) => [...prev, newWallet]);
@@ -251,6 +257,26 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       toast({
         title: "Erreur",
         description: "Portefeuille non trouvé",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Vérifier que l'administrateur ne peut pas faire des dépenses
+    if (currentUser?.role === 'admin') {
+      toast({
+        title: "Accès refusé",
+        description: "Les administrateurs ne peuvent pas effectuer de dépenses dans les portefeuilles",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Vérifier que l'agent ne peut faire des dépenses que dans son propre portefeuille
+    if (currentUser?.id !== wallet.agentId) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous ne pouvez effectuer des dépenses que dans votre propre portefeuille",
         variant: "destructive",
       });
       return;
@@ -413,6 +439,63 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Add new function to update wallet password
+  const updateWalletPassword = (walletId: string, newPassword: string): boolean => {
+    if (!currentUser) {
+      toast({
+        title: "Erreur",
+        description: "Utilisateur non connecté",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    const wallet = getWalletById(walletId);
+    
+    if (!wallet) {
+      toast({
+        title: "Erreur",
+        description: "Portefeuille non trouvé",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    // Verify that only the wallet's agent can change their password
+    if (wallet.agentId !== currentUser.id && currentUser.role !== 'admin') {
+      toast({
+        title: "Accès refusé",
+        description: "Vous ne pouvez modifier que le mot de passe de votre propre portefeuille",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (newPassword.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    setWallets(prev => 
+      prev.map(w => 
+        w.id === walletId 
+          ? { ...w, password: newPassword } 
+          : w
+      )
+    );
+    
+    toast({
+      title: "Mot de passe mis à jour",
+      description: "Le mot de passe a été modifié avec succès",
+    });
+    
+    return true;
+  };
+
   return (
     <WalletContext.Provider
       value={{
@@ -434,6 +517,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         getTotalEntriesByWallet,
         getRemainingBalance,
         updateExchangeRate,
+        updateWalletPassword,
       }}
     >
       {children}
