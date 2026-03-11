@@ -16,8 +16,8 @@ const Index = () => {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-wallet-background">
-      <p className="text-wallet-neutral">Redirection en cours...</p>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <p className="text-muted-foreground">Redirection en cours...</p>
     </div>
   );
 };
