@@ -61,7 +61,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
       return;
     }
 
-    if (password.length < 6) {
+    if (agentMode !== 'admin' && password.length < 6) {
       toast({
         title: "Erreur",
         description: "Le mot de passe doit contenir au moins 6 caractères",
