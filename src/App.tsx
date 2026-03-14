@@ -36,6 +36,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <WalletProvider>
+          <ArchiveProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
