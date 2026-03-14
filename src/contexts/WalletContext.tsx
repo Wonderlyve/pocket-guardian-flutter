@@ -294,11 +294,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Vérifier que l'administrateur peut seulement faire des dépenses dans le portefeuille principal
-    if (currentUser?.role === 'admin' && wallet.id !== '1') {
+    // L'admin ne peut effectuer des dépenses que sur les wallets de type admin
+    if (currentUser?.role === 'admin' && wallet.walletType !== 'admin') {
       toast({
         title: "Accès refusé",
-        description: "Les administrateurs ne peuvent effectuer des dépenses que dans le portefeuille principal",
+        description: "Vous ne pouvez effectuer des dépenses que dans vos portefeuilles admin",
         variant: "destructive",
       });
       return;
