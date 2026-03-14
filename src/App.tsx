@@ -18,6 +18,7 @@ import OperationsPage from "./pages/OperationsPage";
 import EncaissementsPage from "./pages/EncaissementsPage";
 import Settings from "./pages/Settings";
 import ExpensesPage from "./pages/ExpensesPage";
+import ArchivePage from "./pages/ArchivePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
