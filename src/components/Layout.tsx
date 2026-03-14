@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Home, Wallet, Settings, LogOut, 
   ArrowUpCircle, CreditCard, Activity, 
-  PlusCircle, User
+  PlusCircle, User, Archive
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
