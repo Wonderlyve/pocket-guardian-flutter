@@ -220,7 +220,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 6 caractères"
-                  required={agentMode !== 'admin'}
+                  required
                   minLength={6}
                 />
                 <p className="text-xs text-muted-foreground">
