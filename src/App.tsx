@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { WalletProvider } from "./contexts/WalletContext";
+import { ArchiveProvider } from "./contexts/ArchiveContext";
 
 // Pages
 import Login from "./pages/Login";
@@ -17,6 +18,7 @@ import OperationsPage from "./pages/OperationsPage";
 import EncaissementsPage from "./pages/EncaissementsPage";
 import Settings from "./pages/Settings";
 import ExpensesPage from "./pages/ExpensesPage";
+import ArchivePage from "./pages/ArchivePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <WalletProvider>
+          <ArchiveProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -47,11 +50,13 @@ const App = () => (
               <Route path="/encaissements/:id" element={<ProtectedRoute><EncaissementsPage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
+              <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
               
               {/* Fallback pour les routes non trouvées */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          </ArchiveProvider>
         </WalletProvider>
       </AuthProvider>
     </TooltipProvider>
