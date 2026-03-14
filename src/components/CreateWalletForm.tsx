@@ -133,10 +133,11 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
         <CardTitle className="text-lg">Créer un portefeuille</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="existing" onValueChange={(value) => setAgentMode(value as 'existing' | 'new')}>
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+        <Tabs defaultValue="existing" onValueChange={(value) => setAgentMode(value as 'existing' | 'new' | 'admin')}>
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="existing">Agent existant</TabsTrigger>
             <TabsTrigger value="new">Nouvel agent</TabsTrigger>
+            <TabsTrigger value="admin">Admin</TabsTrigger>
           </TabsList>
           
           <form onSubmit={handleSubmit} className="space-y-4">
