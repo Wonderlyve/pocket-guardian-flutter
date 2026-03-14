@@ -30,7 +30,19 @@ export function ArchiveProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    localStorage.setItem('archived_documents', JSON.stringify(documents));
+    try {
+      localStorage.setItem('archived_documents', JSON.stringify(documents));
+    } catch (e) {
+      console.warn('Storage quota exceeded, clearing old documents');
+      // Keep only the 20 most recent documents
+      const trimmed = documents.slice(0, 20);
+      try {
+        localStorage.setItem('archived_documents', JSON.stringify(trimmed));
+        setDocuments(trimmed);
+      } catch {
+        localStorage.removeItem('archived_documents');
+      }
+    }
   }, [documents]);
 
   // Check for due reminders
