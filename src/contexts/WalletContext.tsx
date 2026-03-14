@@ -40,8 +40,9 @@ const INITIAL_WALLETS: Wallet[] = [
     id: '1',
     name: 'Portefeuille Principal',
     balance: 10000,
-    agentId: '1', // Admin
+    agentId: '1',
     createdAt: new Date(),
+    walletType: 'admin',
   },
   {
     id: '2',
@@ -51,6 +52,7 @@ const INITIAL_WALLETS: Wallet[] = [
     createdAt: new Date(),
     email: 'agent1@example.com',
     password: 'password',
+    walletType: 'agent',
   },
   {
     id: '3',
@@ -60,6 +62,7 @@ const INITIAL_WALLETS: Wallet[] = [
     createdAt: new Date(),
     email: 'agent2@example.com',
     password: 'password',
+    walletType: 'agent',
   },
 ];
 
@@ -201,6 +204,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       createdAt: new Date(),
       email,
       password,
+      walletType: agentId === '1' ? 'admin' : 'agent',
     };
 
     setWallets((prev) => [...prev, newWallet]);
@@ -290,11 +294,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Vérifier que l'administrateur peut seulement faire des dépenses dans le portefeuille principal
-    if (currentUser?.role === 'admin' && wallet.id !== '1') {
+    // L'admin ne peut effectuer des dépenses que sur les wallets de type admin
+    if (currentUser?.role === 'admin' && wallet.walletType !== 'admin') {
       toast({
         title: "Accès refusé",
-        description: "Les administrateurs ne peuvent effectuer des dépenses que dans le portefeuille principal",
+        description: "Vous ne pouvez effectuer des dépenses que dans vos portefeuilles admin",
         variant: "destructive",
       });
       return;
@@ -368,11 +372,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Vérifier que l'administrateur peut seulement faire des entrées dans le portefeuille principal
-    if (currentUser?.role === 'admin' && wallet.id !== '1') {
+    // L'admin ne peut effectuer des entrées que sur les wallets de type admin
+    if (currentUser?.role === 'admin' && wallet.walletType !== 'admin') {
       toast({
         title: "Accès refusé",
-        description: "Les administrateurs ne peuvent effectuer des entrées que dans le portefeuille principal",
+        description: "Vous ne pouvez effectuer des entrées que dans vos portefeuilles admin",
         variant: "destructive",
       });
       return;

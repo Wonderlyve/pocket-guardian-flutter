@@ -26,7 +26,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
   const [newAgentName, setNewAgentName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [agentMode, setAgentMode] = useState<'existing' | 'new'>('existing');
+  const [agentMode, setAgentMode] = useState<'existing' | 'new' | 'admin'>('existing');
   const [emailDomain, setEmailDomain] = useState<string>('pocketguardian.com');
 
   const { createWallet } = useWallet();
@@ -61,7 +61,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
       return;
     }
 
-    if (password.length < 6) {
+    if (agentMode !== 'admin' && password.length < 6) {
       toast({
         title: "Erreur",
         description: "Le mot de passe doit contenir au moins 6 caractères",
@@ -77,7 +77,10 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
     // Déterminer l'ID de l'agent
     let selectedAgentId: string;
     
-    if (agentMode === 'new') {
+    if (agentMode === 'admin') {
+      // Portefeuille admin — assigné à l'admin (id '1')
+      selectedAgentId = '1';
+    } else if (agentMode === 'new') {
       if (!newAgentName.trim()) {
         toast({
           title: "Erreur",
@@ -87,11 +90,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
         setIsLoading(false);
         return;
       }
-      
-      // Générer un ID pour le nouvel agent
       selectedAgentId = `agent-${Date.now()}`;
-      
-      // Dans une vraie application, vous créeriez l'agent dans la base de données ici
     } else {
       if (!agentId) {
         toast({
@@ -134,10 +133,11 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
         <CardTitle className="text-lg">Créer un portefeuille</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="existing" onValueChange={(value) => setAgentMode(value as 'existing' | 'new')}>
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+        <Tabs defaultValue="existing" onValueChange={(value) => setAgentMode(value as 'existing' | 'new' | 'admin')}>
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="existing">Agent existant</TabsTrigger>
             <TabsTrigger value="new">Nouvel agent</TabsTrigger>
+            <TabsTrigger value="admin">Admin</TabsTrigger>
           </TabsList>
           
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -204,22 +204,30 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
                 Un nouvel agent sera créé et pourra se connecter avec l'email généré et le mot de passe défini ci-dessous.
               </p>
             </TabsContent>
-          
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 6 caractères"
-                required
-                minLength={6}
-              />
+            
+            <TabsContent value="admin" className="space-y-2 mt-4">
               <p className="text-xs text-muted-foreground">
-                Ce mot de passe sera utilisé par l'agent pour se connecter à son compte.
+                Ce portefeuille sera assigné à l'administrateur. Vous pourrez y effectuer directement des dépenses et des entrées.
               </p>
-            </div>
+            </TabsContent>
+          
+            {agentMode !== 'admin' && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Minimum 6 caractères"
+                  required
+                  minLength={6}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ce mot de passe sera utilisé par l'agent pour se connecter à son compte.
+                </p>
+              </div>
+            )}
 
             <Button type="submit" className="w-full bg-wallet-primary hover:bg-wallet-secondary" disabled={isLoading}>
               {isLoading ? 'Création en cours...' : 'Créer le portefeuille'}
