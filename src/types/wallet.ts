@@ -9,14 +9,17 @@ export interface User {
   role: UserRole;
 }
 
+export type WalletType = 'agent' | 'admin';
+
 export interface Wallet {
   id: string;
   name: string;
   balance: number;
   agentId: string;
   createdAt: Date;
-  email?: string; // Added email for agent login
-  password?: string; // Added password for agent login
+  email?: string;
+  password?: string;
+  walletType?: WalletType;
 }
 
 export interface Expense {
