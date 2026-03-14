@@ -50,11 +50,13 @@ const App = () => (
               <Route path="/encaissements/:id" element={<ProtectedRoute><EncaissementsPage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
+              <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
               
               {/* Fallback pour les routes non trouvées */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          </ArchiveProvider>
         </WalletProvider>
       </AuthProvider>
     </TooltipProvider>

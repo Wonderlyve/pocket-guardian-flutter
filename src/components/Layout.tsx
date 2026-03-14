@@ -147,7 +147,7 @@ export default function Layout({ children }: LayoutProps) {
                 <BottomNavItem icon={<Wallet />} label="Portefeuille" active={isActive('/wallets/')} onClick={() => { if (currentUser) navigate(`/wallets/${currentUser.id}`); }} />
                 <BottomNavItem icon={<Activity />} label="Opérations" active={isActive('/operations/')} onClick={() => { if (currentUser) navigate(`/operations/${currentUser.id}`); }} />
                 <BottomNavItem icon={<ArrowUpCircle />} label="Encaisser" active={isActive('/encaissements/')} onClick={() => { if (currentUser) navigate(`/encaissements/${currentUser.id}`); }} />
-                <BottomNavItem icon={<CreditCard />} label="Dépenses" active={isActive('/expenses')} onClick={() => navigate('/expenses')} />
+                <BottomNavItem icon={<Archive />} label="Archives" active={isActive('/archive')} onClick={() => navigate('/archive')} />
               </>
             )}
           </div>
