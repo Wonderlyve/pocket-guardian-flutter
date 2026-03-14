@@ -136,30 +136,56 @@ const WalletDetail = () => {
         </div>
       )}
       
-      <Tabs defaultValue="expenses" value={activeTab} onValueChange={setActiveTab} className="mb-4">
-        <TabsList className="grid w-full grid-cols-2 rounded-xl bg-accent p-1">
-          <TabsTrigger value="expenses" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1">
-            <ArrowDownCircle className="h-4 w-4" /> Dépenses
-          </TabsTrigger>
-          <TabsTrigger value="entries" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1">
-            <ArrowUpCircle className="h-4 w-4" /> Entrées
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="expenses" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <ExpenseForm walletId={id} />
-            <ExpensesList wallet={wallet} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="entries" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <EntryForm walletId={id} />
-            <EntriesList wallet={wallet} />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {canPerformOperations ? (
+        <Tabs defaultValue="expenses" value={activeTab} onValueChange={setActiveTab} className="mb-4">
+          <TabsList className="grid w-full grid-cols-2 rounded-xl bg-accent p-1">
+            <TabsTrigger value="expenses" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1">
+              <ArrowDownCircle className="h-4 w-4" /> Dépenses
+            </TabsTrigger>
+            <TabsTrigger value="entries" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1">
+              <ArrowUpCircle className="h-4 w-4" /> Entrées
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="expenses" className="mt-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <ExpenseForm walletId={id} />
+              <ExpensesList wallet={wallet} />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="entries" className="mt-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <EntryForm walletId={id} />
+              <EntriesList wallet={wallet} />
+            </div>
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <div className="mb-4">
+          <Card className="rounded-2xl border-border/50 mb-4">
+            <CardContent className="p-4 text-center text-muted-foreground">
+              <p className="text-sm">👁️ Mode consultation uniquement — vous ne pouvez pas effectuer d'opérations sur ce portefeuille agent.</p>
+            </CardContent>
+          </Card>
+          <Tabs defaultValue="expenses" value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2 rounded-xl bg-accent p-1">
+              <TabsTrigger value="expenses" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1">
+                <ArrowDownCircle className="h-4 w-4" /> Dépenses
+              </TabsTrigger>
+              <TabsTrigger value="entries" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1">
+                <ArrowUpCircle className="h-4 w-4" /> Entrées
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="expenses" className="mt-4">
+              <ExpensesList wallet={wallet} />
+            </TabsContent>
+            <TabsContent value="entries" className="mt-4">
+              <EntriesList wallet={wallet} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
     </Layout>
   );
 };

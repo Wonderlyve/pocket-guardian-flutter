@@ -211,21 +211,23 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
               </p>
             </TabsContent>
           
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 6 caractères"
-                required
-                minLength={6}
-              />
-              <p className="text-xs text-muted-foreground">
-                Ce mot de passe sera utilisé par l'agent pour se connecter à son compte.
-              </p>
-            </div>
+            {agentMode !== 'admin' && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Minimum 6 caractères"
+                  required={agentMode !== 'admin'}
+                  minLength={6}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ce mot de passe sera utilisé par l'agent pour se connecter à son compte.
+                </p>
+              </div>
+            )}
 
             <Button type="submit" className="w-full bg-wallet-primary hover:bg-wallet-secondary" disabled={isLoading}>
               {isLoading ? 'Création en cours...' : 'Créer le portefeuille'}

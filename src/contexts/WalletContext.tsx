@@ -204,6 +204,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       createdAt: new Date(),
       email,
       password,
+      walletType: agentId === '1' ? 'admin' : 'agent',
     };
 
     setWallets((prev) => [...prev, newWallet]);
