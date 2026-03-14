@@ -26,7 +26,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
   const [newAgentName, setNewAgentName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [agentMode, setAgentMode] = useState<'existing' | 'new'>('existing');
+  const [agentMode, setAgentMode] = useState<'existing' | 'new' | 'admin'>('existing');
   const [emailDomain, setEmailDomain] = useState<string>('pocketguardian.com');
 
   const { createWallet } = useWallet();
