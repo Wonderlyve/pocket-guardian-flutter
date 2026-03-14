@@ -77,7 +77,10 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
     // Déterminer l'ID de l'agent
     let selectedAgentId: string;
     
-    if (agentMode === 'new') {
+    if (agentMode === 'admin') {
+      // Portefeuille admin — assigné à l'admin (id '1')
+      selectedAgentId = '1';
+    } else if (agentMode === 'new') {
       if (!newAgentName.trim()) {
         toast({
           title: "Erreur",
@@ -87,11 +90,7 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
         setIsLoading(false);
         return;
       }
-      
-      // Générer un ID pour le nouvel agent
       selectedAgentId = `agent-${Date.now()}`;
-      
-      // Dans une vraie application, vous créeriez l'agent dans la base de données ici
     } else {
       if (!agentId) {
         toast({
