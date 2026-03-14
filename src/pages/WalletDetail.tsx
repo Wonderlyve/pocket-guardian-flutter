@@ -46,6 +46,11 @@ const WalletDetail = () => {
   const totalEntries = getTotalEntriesByWallet(id);
   const remainingBalance = getRemainingBalance(id);
   
+  // L'admin peut effectuer des opérations uniquement sur ses propres wallets (type admin)
+  const isAdminWallet = wallet.walletType === 'admin';
+  const isOwnWallet = currentUser && wallet.agentId === currentUser.id;
+  const canPerformOperations = isOwnWallet || (isAdmin && isAdminWallet);
+  
   const handleUpdateBalance = (e: React.FormEvent) => {
     e.preventDefault();
     setIsUpdating(true);
