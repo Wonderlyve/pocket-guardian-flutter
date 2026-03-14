@@ -138,6 +138,7 @@ export default function Layout({ children }: LayoutProps) {
                 <BottomNavItem icon={<Home />} label="Accueil" active={isActive('/')} onClick={() => navigate('/')} />
                 <BottomNavItem icon={<Wallet />} label="Portefeuilles" active={isActive('/wallets') && !isActive('/wallets/create')} onClick={() => navigate('/wallets')} />
                 <BottomNavItem icon={<PlusCircle />} label="Créer" active={isActive('/wallets/create')} onClick={() => navigate('/wallets/create')} isPrimary />
+                <BottomNavItem icon={<Archive />} label="Archives" active={isActive('/archive')} onClick={() => navigate('/archive')} />
                 <BottomNavItem icon={<Settings />} label="Réglages" active={isActive('/settings')} onClick={() => navigate('/settings')} />
               </>
             ) : (
