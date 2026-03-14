@@ -93,6 +93,7 @@ export default function Layout({ children }: LayoutProps) {
                 <>
                   <MenuLink icon={<Wallet />} label="Tous les portefeuilles" active={isActive('/wallets')} onClick={() => {navigate('/wallets'); setMenuOpen(false);}} />
                   <MenuLink icon={<PlusCircle />} label="Créer un portefeuille" active={isActive('/wallets/create')} onClick={() => {navigate('/wallets/create'); setMenuOpen(false);}} />
+                  <MenuLink icon={<Archive />} label="Archivage" active={isActive('/archive')} onClick={() => {navigate('/archive'); setMenuOpen(false);}} />
                   <MenuLink icon={<Settings />} label="Paramètres" active={isActive('/settings')} onClick={() => {navigate('/settings'); setMenuOpen(false);}} />
                 </>
               ) : (
@@ -101,6 +102,7 @@ export default function Layout({ children }: LayoutProps) {
                   <MenuLink icon={<Activity />} label="Opérations" active={isActive('/operations/')} onClick={() => {if (currentUser) navigate(`/operations/${currentUser.id}`); setMenuOpen(false);}} />
                   <MenuLink icon={<CreditCard />} label="Dépenses" active={isActive('/expenses')} onClick={() => {navigate('/expenses'); setMenuOpen(false);}} />
                   <MenuLink icon={<ArrowUpCircle />} label="Encaissements" active={isActive('/encaissements/')} onClick={() => {if (currentUser) navigate(`/encaissements/${currentUser.id}`); setMenuOpen(false);}} />
+                  <MenuLink icon={<Archive />} label="Archivage" active={isActive('/archive')} onClick={() => {navigate('/archive'); setMenuOpen(false);}} />
                 </>
               )}
               
