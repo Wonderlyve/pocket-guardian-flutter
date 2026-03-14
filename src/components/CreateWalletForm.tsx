@@ -204,6 +204,12 @@ const CreateWalletForm: React.FC<CreateWalletFormProps> = ({ onSuccess }) => {
                 Un nouvel agent sera créé et pourra se connecter avec l'email généré et le mot de passe défini ci-dessous.
               </p>
             </TabsContent>
+            
+            <TabsContent value="admin" className="space-y-2 mt-4">
+              <p className="text-xs text-muted-foreground">
+                Ce portefeuille sera assigné à l'administrateur. Vous pourrez y effectuer directement des dépenses et des entrées.
+              </p>
+            </TabsContent>
           
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
