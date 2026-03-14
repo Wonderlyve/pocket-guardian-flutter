@@ -40,8 +40,9 @@ const INITIAL_WALLETS: Wallet[] = [
     id: '1',
     name: 'Portefeuille Principal',
     balance: 10000,
-    agentId: '1', // Admin
+    agentId: '1',
     createdAt: new Date(),
+    walletType: 'admin',
   },
   {
     id: '2',
@@ -51,6 +52,7 @@ const INITIAL_WALLETS: Wallet[] = [
     createdAt: new Date(),
     email: 'agent1@example.com',
     password: 'password',
+    walletType: 'agent',
   },
   {
     id: '3',
@@ -60,6 +62,7 @@ const INITIAL_WALLETS: Wallet[] = [
     createdAt: new Date(),
     email: 'agent2@example.com',
     password: 'password',
+    walletType: 'agent',
   },
 ];
 
