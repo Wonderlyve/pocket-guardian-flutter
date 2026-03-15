@@ -52,6 +52,7 @@ const App = () => (
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
               <Route path="/archive" element={<ProtectedRoute><ArchivePage /></ProtectedRoute>} />
+              <Route path="/transfers" element={<ProtectedRoute><TransferPage /></ProtectedRoute>} />
               
               {/* Fallback pour les routes non trouvées */}
               <Route path="*" element={<NotFound />} />
