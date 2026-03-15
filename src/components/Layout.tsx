@@ -30,25 +30,31 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header - Clean & minimal */}
-      <header className="bg-card border-b border-border px-4 py-3">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-              <Wallet className="h-4 w-4 text-primary-foreground" />
+      <header className="bg-card border-b border-border px-2 py-3">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+              <Wallet className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-foreground leading-tight">{currentUser?.name || 'Pocket Guardian'}</h1>
+              <h1 className="text-sm font-bold text-foreground leading-tight">{currentUser?.name || 'Kumpta'}</h1>
               <p className="text-[11px] text-muted-foreground">
                 {isAdmin ? 'Administrateur' : 'Agent'}
               </p>
             </div>
           </div>
-          <button 
-            onClick={toggleMenu} 
-            className="p-2 rounded-xl hover:bg-accent transition-colors"
-          >
-            <Menu className="h-5 w-5 text-foreground" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button className="p-2 rounded-xl hover:bg-accent transition-colors relative">
+              <Bell className="h-5 w-5 text-foreground" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
+            </button>
+            <button 
+              onClick={toggleMenu} 
+              className="p-2 rounded-xl hover:bg-accent transition-colors"
+            >
+              <Menu className="h-5 w-5 text-foreground" />
+            </button>
+          </div>
         </div>
       </header>
 
