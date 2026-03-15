@@ -30,6 +30,7 @@ interface WalletContextType {
   getRemainingBalance: (walletId: string) => number;
   updateExchangeRate: (rate: number) => void;
   updateWalletPassword: (walletId: string, newPassword: string) => boolean;
+  transferFunds: (fromWalletId: string, toWalletId: string, amount: number, description: string) => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);

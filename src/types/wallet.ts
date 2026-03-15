@@ -42,7 +42,7 @@ export interface Entry {
   convertedAmount?: number;
 }
 
-export type TransactionType = 'initial' | 'topup' | 'adjustment' | 'expense' | 'entry';
+export type TransactionType = 'initial' | 'topup' | 'adjustment' | 'expense' | 'entry' | 'transfer_out' | 'transfer_in';
 
 export interface Transaction {
   id: string;
