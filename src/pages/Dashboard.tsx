@@ -7,11 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import CurrencyDisplay from '@/components/CurrencyDisplay';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, ArrowRight, PlusCircle } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowRight, PlusCircle, ArrowDownCircle, ArrowUpCircle, ArrowRightLeft } from 'lucide-react';
 
 const Dashboard = () => {
   const { currentUser, isAdmin } = useAuth();
-  const { wallets, getWalletsByAgent } = useWallet();
+  const { wallets, getWalletsByAgent, getTransactionsByWallet } = useWallet();
   const navigate = useNavigate();
 
   if (!currentUser) {
@@ -20,7 +20,38 @@ const Dashboard = () => {
 
   const userWallets = isAdmin ? wallets : getWalletsByAgent(currentUser.id);
   const totalBalance = wallets.reduce((sum, wallet) => sum + wallet.balance, 0);
-  
+
+  // Get recent transactions for agent
+  const agentRecentTransactions = !isAdmin && userWallets.length > 0
+    ? userWallets
+        .flatMap(w => getTransactionsByWallet(w.id))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5)
+    : [];
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'expense': return <ArrowDownCircle className="h-4 w-4 text-destructive" />;
+      case 'entry': return <ArrowUpCircle className="h-4 w-4 text-green-600" />;
+      case 'transfer_in': return <ArrowRightLeft className="h-4 w-4 text-primary" />;
+      case 'transfer_out': return <ArrowRightLeft className="h-4 w-4 text-orange-500" />;
+      case 'topup': return <ArrowUpCircle className="h-4 w-4 text-primary" />;
+      default: return <TrendingUp className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const getTransactionLabel = (type: string) => {
+    switch (type) {
+      case 'expense': return 'Dépense';
+      case 'entry': return 'Encaissement';
+      case 'transfer_in': return 'Transfert reçu';
+      case 'transfer_out': return 'Transfert envoyé';
+      case 'topup': return 'Rechargement';
+      case 'initial': return 'Solde initial';
+      default: return 'Opération';
+    }
+  };
+
   return (
     <Layout>
       {isAdmin && (
@@ -100,6 +131,52 @@ const Dashboard = () => {
           {userWallets.map((wallet) => (
             <WalletCard key={wallet.id} wallet={wallet} onClick={() => navigate(`/wallets/${wallet.id}`)} />
           ))}
+        </div>
+      )}
+
+      {/* Recent operations for agent */}
+      {!isAdmin && agentRecentTransactions.length > 0 && (
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold">Opérations récentes</h2>
+            {currentUser && (
+              <Button
+                onClick={() => navigate(`/operations/${currentUser.id}`)}
+                variant="ghost"
+                size="sm"
+                className="text-primary font-medium"
+              >
+                Voir tout <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
+          </div>
+          <Card className="rounded-2xl border-border/50">
+            <CardContent className="p-0">
+              <ul className="divide-y divide-border">
+                {agentRecentTransactions.map((tx) => (
+                  <li key={tx.id} className="flex items-center gap-3 px-4 py-3">
+                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shrink-0">
+                      {getTransactionIcon(tx.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{tx.description}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {getTransactionLabel(tx.type)} · {new Date(tx.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <CurrencyDisplay
+                      amount={tx.amount}
+                      className={`text-sm font-semibold ${
+                        tx.type === 'expense' || tx.type === 'transfer_out'
+                          ? 'text-destructive'
+                          : 'text-green-600'
+                      }`}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       )}
     </Layout>
