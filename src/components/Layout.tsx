@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Home, Wallet, Settings, LogOut, 
-  ArrowUpCircle, Activity, 
+  ArrowUpCircle, Activity, Bell,
   PlusCircle, User, Archive, ArrowRightLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
