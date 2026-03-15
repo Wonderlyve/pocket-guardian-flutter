@@ -30,6 +30,7 @@ interface WalletContextType {
   getRemainingBalance: (walletId: string) => number;
   updateExchangeRate: (rate: number) => void;
   updateWalletPassword: (walletId: string, newPassword: string) => boolean;
+  transferFunds: (fromWalletId: string, toWalletId: string, amount: number, description: string) => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -548,6 +549,62 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
+  const transferFunds = (fromWalletId: string, toWalletId: string, amount: number, description: string) => {
+    if (currentUser?.role !== 'admin') {
+      toast({ title: "Accès refusé", description: "Seul un administrateur peut effectuer des transferts", variant: "destructive" });
+      return;
+    }
+
+    const fromWallet = getWalletById(fromWalletId);
+    const toWallet = getWalletById(toWalletId);
+    if (!fromWallet || !toWallet) {
+      toast({ title: "Erreur", description: "Portefeuille non trouvé", variant: "destructive" });
+      return;
+    }
+
+    const remaining = getRemainingBalance(fromWalletId);
+    if (amount > remaining) {
+      toast({ title: "Transfert refusé", description: "Le montant dépasse le solde disponible", variant: "destructive" });
+      return;
+    }
+
+    // Update balances
+    setWallets(prev => prev.map(w => {
+      if (w.id === fromWalletId) return { ...w, balance: w.balance - amount };
+      if (w.id === toWalletId) return { ...w, balance: w.balance + amount };
+      return w;
+    }));
+
+    const now = new Date();
+    const txId = Date.now().toString();
+
+    // Transaction on source wallet
+    const txOut: Transaction = {
+      id: txId,
+      walletId: fromWalletId,
+      type: 'transfer_out',
+      amount: -amount,
+      description: `Transfert vers ${toWallet.name}: ${description}`,
+      currency: 'USD',
+      date: now,
+    };
+
+    // Transaction on destination wallet
+    const txIn: Transaction = {
+      id: (Date.now() + 1).toString(),
+      walletId: toWalletId,
+      type: 'transfer_in',
+      amount: amount,
+      description: `Transfert depuis ${fromWallet.name}: ${description}`,
+      currency: 'USD',
+      date: now,
+    };
+
+    setTransactions(prev => [...prev, txOut, txIn]);
+
+    toast({ title: "Transfert effectué", description: `${amount} USD transféré de ${fromWallet.name} vers ${toWallet.name}` });
+  };
+
   return (
     <WalletContext.Provider
       value={{
@@ -570,6 +627,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         getRemainingBalance,
         updateExchangeRate,
         updateWalletPassword,
+        transferFunds,
       }}
     >
       {children}
