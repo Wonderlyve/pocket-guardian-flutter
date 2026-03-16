@@ -26,10 +26,8 @@ const Login = () => {
       
       <div className="w-full max-w-md relative z-10 px-4">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-primary-foreground/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">💼</span>
-          </div>
-          <h1 className="text-3xl font-bold text-primary-foreground mb-2">Pocket Guardian</h1>
+          <img src="/kumpta-logo.png" alt="Kumpta" className="w-20 h-20 rounded-2xl mx-auto mb-4" />
+          <h1 className="text-3xl font-bold text-primary-foreground mb-2">Kumpta</h1>
           <p className="text-primary-foreground/70">Gérez vos portefeuilles en toute simplicité</p>
         </div>
         <LoginForm />
