@@ -29,30 +29,32 @@ const Login = () => {
         <div className="absolute bottom-20 left-12 w-6 h-6 rounded-full bg-primary-foreground/8" />
       </div>
       
-      <div className="w-full max-w-sm relative z-10 px-6 animate-slide-up">
+      <div className="w-full max-w-sm relative z-10 px-6 animate-slide-up flex flex-col items-center justify-center flex-1 py-6">
         {/* Logo & branding */}
-        <div className="text-center mb-10">
-          <div className="relative inline-block mb-5">
+        <div className="text-center mb-6">
+          <div className="relative inline-block mb-3">
             <div className="absolute inset-0 rounded-3xl bg-primary-foreground/20 blur-xl scale-110" />
             <img 
               src="/kumpta-logo.png" 
               alt="Kumpta" 
-              className="relative w-24 h-24 rounded-3xl mx-auto shadow-lg ring-2 ring-primary-foreground/20" 
+              className="relative w-20 h-20 rounded-3xl mx-auto shadow-lg ring-2 ring-primary-foreground/20" 
             />
           </div>
-          <h1 className="text-4xl font-extrabold text-primary-foreground tracking-tight mb-1">
+          <h1 className="text-3xl font-extrabold text-primary-foreground tracking-tight mb-0.5">
             Kumpta
           </h1>
-          <p className="text-primary-foreground/60 text-sm font-medium">
+          <p className="text-primary-foreground/60 text-xs font-medium">
             Gestion de portefeuilles simplifiée
           </p>
         </div>
 
         {/* Login card */}
-        <LoginForm />
+        <div className="w-full">
+          <LoginForm />
+        </div>
 
         {/* Footer */}
-        <p className="text-center text-primary-foreground/40 text-xs mt-8">
+        <p className="text-center text-primary-foreground/40 text-xs mt-auto pt-4">
           © 2026 Kumpta · Tous droits réservés
         </p>
       </div>
