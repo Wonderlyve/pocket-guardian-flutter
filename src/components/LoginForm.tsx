@@ -33,11 +33,11 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="bg-card rounded-3xl p-7 shadow-2xl backdrop-blur-sm border border-border/50">
-      <h2 className="text-xl font-bold text-center text-foreground mb-0.5">Bon retour 👋</h2>
-      <p className="text-sm text-muted-foreground text-center mb-6">Connectez-vous à votre espace</p>
+    <div className="bg-card rounded-2xl p-5 shadow-2xl backdrop-blur-sm border border-border/50">
+      <h2 className="text-lg font-bold text-center text-foreground mb-0.5">Bon retour 👋</h2>
+      <p className="text-xs text-muted-foreground text-center mb-4">Connectez-vous à votre espace</p>
       
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Email
