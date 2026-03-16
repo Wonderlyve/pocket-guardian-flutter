@@ -15,7 +15,7 @@ const Login = () => {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary via-secondary to-primary relative overflow-hidden">
+    <div className="h-[100dvh] flex flex-col items-center justify-center bg-gradient-to-br from-primary via-secondary to-primary relative overflow-hidden">
       {/* Animated decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary-foreground/5 blur-3xl animate-pulse-light" />
